@@ -211,6 +211,16 @@
   .apex h3 { font-size: 1.9rem; font-weight: 500; margin: 0.3rem 0 0.2rem; }
   .apex .status { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blood); }
 
+  .call { margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+  .call-lead { font-weight: 300; font-size: 1.05rem; margin: 0 0 0.9rem; }
+  .call-link {
+    display: inline-block;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--room); background: var(--blood);
+    padding: 0.7rem 1.2rem; text-decoration: none;
+  }
+  .call-link:hover, .call-link:focus { background: var(--ink); color: var(--room); }
+
   /* ---- subordinate / footer ---- */
   .also { margin-top: 2.4rem; font-size: 0.92rem; color: var(--muted); }
   .also a { color: var(--muted); }
@@ -330,12 +340,16 @@
 
       <!-- ============ THE MISTRESS — apex ============ -->
       <section class="apex" aria-label="The Mistress">
-        <p class="status">Feature · in development</p>
+        <p class="status">Feature · seeking a producer</p>
         <h3>The Mistress</h3>
-        <!-- FILL: your final logline. Draft below drawn from your FilmFreeway framing — replace with the wording you want public. -->
+        <!-- FILL (optional): final logline wording. Draft below drawn from your FilmFreeway framing. -->
         <p class="logline">A wealthy socialite and her assistant are shut inside the assistant's apartment while the world outside comes apart — a feature-length confinement thriller set in Wrocław.</p>
         <p>The chamber form the shorts were built to test, at feature length. The title is meant to stay ambiguous: who keeps whom.</p>
-        <p class="fill fill-block">FILL / DECIDE — Producer line. You need a producer for the PISF debut window regardless; a discreet "McNovak is seeking a producing partner for The Mistress — [email]" turns this page from a card into a call. Keep or cut.</p>
+        <div class="call">
+          <p class="call-lead">McNovak is looking for a producing partner to bring <em>The Mistress</em> to production in Poland.</p>
+          <!-- FILL: swap to hello@mcnovak.net once the domain email exists, if you prefer a company address. -->
+          <a class="call-link" href="mailto:williammcneice@icloud.com?subject=The%20Mistress%20%E2%80%94%20producing">Get in touch →</a>
+        </div>
       </section>
 
       <!-- ============ SUBORDINATE: Bilateral Symmetry ============ -->
