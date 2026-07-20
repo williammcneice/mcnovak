@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>McNovak</title>
+<meta name="description" content="McNovak — William Alan McNeice and Katarzyna Nowak-McNeice. Confinement as a container for power. Films: Lockdown, Claustrophilia. In development: The Mistress." />
+
+<!-- Open Graph / social preview. FILL: replace og:image path once you add a still, and og:url once the domain is live. -->
+<meta property="og:title" content="McNovak" />
+<meta property="og:description" content="Confinement as a container for power. Films by William Alan McNeice and Katarzyna Nowak-McNeice." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://mcnovak.net" />
+<!-- <meta property="og:image" content="https://mcnovak.net/img/og.jpg" /> -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* The room is lit; the outside is not. */
+    --outside: #131519;   /* dark exterior — page background */
+    --room:    #E4E3DC;   /* cool bone — the lit interior panel */
+    --ink:     #191A1D;    /* near-black text */
+    --muted:   #6E6C63;    /* secondary text, captions */
+    --line:    #C3C1B7;    /* hairline on the bone */
+    --line-dk: #2A2D33;    /* hairline on the dark */
+    --blood:   #7A2E2A;    /* oxblood — used rarely, on purpose */
+
+    --measure: 33rem;      /* the confined column width */
+    --display: 'Spectral', Georgia, serif;
+    --mono: 'Space Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--outside);
+    color: var(--ink);
+    font-family: var(--display);
+    font-weight: 400;
+    line-height: 1.55;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* ---- The room: a lit panel inside the dark exterior ---- */
+  .room {
+    max-width: 46rem;
+    margin: 0 auto;
+    background: var(--room);
+    /* the doorway: a thin frame set slightly in from the panel edge */
+    box-shadow: inset 0 0 0 1px var(--line), inset 0 0 0 7px var(--room), inset 0 0 0 8px var(--line);
+    padding: clamp(2.2rem, 6vw, 5rem) clamp(1.4rem, 6vw, 4.5rem);
+    min-height: 100vh;
+  }
+
+  .inner {
+    max-width: var(--measure);
+    margin: 0 auto;
+    opacity: 0;
+    animation: settle 900ms ease-out 120ms forwards;
+  }
+  @keyframes settle { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .inner { animation: none; opacity: 1; }
+  }
+
+  /* ---- Masthead ---- */
+  .wordmark {
+    font-weight: 600;
+    letter-spacing: 0.42em;
+    font-size: clamp(1.9rem, 7vw, 2.9rem);
+    margin: 0 0 0.1em;
+    padding-left: 0.42em; /* optically re-centre the tracked caps */
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .names {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 0.9rem 0 2.2rem;
+  }
+  .thesis {
+    font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+    font-weight: 300;
+    line-height: 1.42;
+    margin: 0 0 0.4rem;
+    max-width: 30rem;
+  }
+
+  /* ---- Section scaffolding ---- */
+  section { margin-top: 3.6rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .eyebrow::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  p { margin: 0 0 1.1rem; }
+  .lede { font-weight: 300; font-size: 1.06rem; }
+
+  /* ---- The confinement epigraph: the one oxblood moment ---- */
+  .epigraph {
+    margin: 3.6rem 0;
+    padding: 1.6rem 0 1.6rem 1.4rem;
+    border-left: 2px solid var(--blood);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.22rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .epigraph cite {
+    display: block;
+    margin-top: 0.9rem;
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---- Film entries ---- */
+  .film { margin: 2.6rem 0; padding-top: 2.6rem; border-top: 1px solid var(--line); }
+  .film:first-of-type { border-top: none; padding-top: 0; }
+
+  .film h3 {
+    font-weight: 500;
+    font-size: 1.5rem;
+    margin: 0 0 0.15rem;
+    line-height: 1.1;
+  }
+  .film .year {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .logline {
+    font-style: italic;
+    font-weight: 300;
+    font-size: 1.1rem;
+    margin: 0.9rem 0 1.2rem;
+  }
+
+  /* video slot */
+  .frame {
+    position: relative;
+    width: 100%;
+    background: #0d0e11;
+    border: 1px solid var(--line);
+    margin: 1.2rem 0;
+    overflow: hidden;
+  }
+  .frame .ratio { display: block; width: 100%; height: auto; }
+  .frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .frame .placeholder {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    padding: 1rem;
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em;
+    color: #8d8b83; background: #0d0e11;
+  }
+
+  /* mono spec sheet */
+  .specs {
+    list-style: none; margin: 1rem 0 1.2rem; padding: 0;
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.02em;
+    color: var(--ink);
+    display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1.4rem;
+  }
+  .specs dt { color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .specs dd { margin: 0; }
+
+  .awards { margin: 1rem 0 0; padding: 0; list-style: none; font-size: 0.9rem; }
+  .awards li { padding: 0.32rem 0; border-bottom: 1px dotted var(--line); display: flex; justify-content: space-between; gap: 1rem; }
+  .awards li:last-child { border-bottom: none; }
+  .awards .prize { color: var(--blood); font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+  .awards .place { color: var(--muted); font-family: var(--mono); font-size: 0.64rem; }
+
+  /* ---- The Mistress: the apex, set apart ---- */
+  .apex {
+    margin-top: 4.2rem;
+    background: #DEDCD3;
+    box-shadow: inset 0 0 0 1px var(--line);
+    padding: 2.4rem clamp(1.2rem, 5vw, 2.4rem);
+  }
+  .apex h3 { font-size: 1.9rem; font-weight: 500; margin: 0.3rem 0 0.2rem; }
+  .apex .status { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blood); }
+
+  /* ---- subordinate / footer ---- */
+  .also { margin-top: 2.4rem; font-size: 0.92rem; color: var(--muted); }
+  .also a { color: var(--muted); }
+
+  footer {
+    margin-top: 4.4rem; padding-top: 1.6rem; border-top: 1px solid var(--line);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; align-items: baseline;
+  }
+  footer a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 1px; }
+  footer a:hover, footer a:focus { color: var(--blood); border-color: var(--blood); }
+  footer .spacer { flex: 1; }
+
+  a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 3px; }
+  a:hover, a:focus { text-decoration-color: var(--blood); }
+
+  /* ---- Placeholder marker: everywhere YOU still need to decide ---- */
+  .fill {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.02em;
+    color: var(--blood); background: rgba(122,46,42,0.08);
+    padding: 0.05em 0.4em; border: 1px dashed var(--blood); border-radius: 2px;
+    display: inline-block;
+  }
+  .fill-block { display: block; margin: 0.6rem 0; padding: 0.8rem 1rem; line-height: 1.5; }
+
+  :focus-visible { outline: 2px solid var(--blood); outline-offset: 3px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    .room { box-shadow: inset 0 0 0 1px var(--line); }
+    .specs { grid-template-columns: 1fr; gap: 0.15rem; }
+    .specs dt { margin-top: 0.5rem; }
+    .awards li { flex-direction: column; gap: 0.15rem; }
+  }
+</style>
+</head>
+<body>
+  <main class="room">
+    <div class="inner">
+
+      <!-- ============ MASTHEAD ============ -->
+      <header>
+        <h1 class="wordmark">McNovak</h1>
+        <p class="names">William Alan McNeice &nbsp;·&nbsp; Katarzyna Nowak-McNeice</p>
+        <p class="thesis">Films about confinement, and the power that grows inside a closed room.</p>
+      </header>
+
+      <!-- ============ STATEMENT ============ -->
+      <!-- FILL: this is your site voice. Read it aloud; cut or sharpen. It should sound like you, not like a bio template. -->
+      <section aria-label="Statement">
+        <p class="lede">McNovak is the working partnership of William Alan McNeice, out of theatre, and Katarzyna Nowak-McNeice, out of literature. We make chamber pieces: a few people, one apartment, a door that will not open. The interest is always the same — what a person becomes when the world narrows to a single room, and who they decide to rule inside it.</p>
+        <p>The work is deliberately austere. It is carried by actors and by dread rather than by spectacle, closer to the quiet menace of <em>Ring</em> or <em>Dark Water</em> than to anything that needs a bigger budget to frighten you. Restraint is the method, not the apology.</p>
+      </section>
+
+      <!-- ============ THE SIGNATURE EPIGRAPH ============ -->
+      <blockquote class="epigraph">
+        We may be confined to protect us from the outside, or we may be confined to protect the outside from us.
+        <cite>From <em>Claustrophilia</em></cite>
+      </blockquote>
+
+      <!-- ============ FILMS ============ -->
+      <section aria-label="Films">
+        <p class="eyebrow">The films</p>
+
+        <!-- LOCKDOWN -->
+        <article class="film">
+          <h3>Lockdown <span class="year">/ 2020</span></h3>
+          <p class="logline">A couple finds themselves under quarantine with their two cats… and the food is running out.</p>
+
+          <!-- FILL: paste your Vimeo video ID between the quotes (e.g. 123456789) and delete the placeholder div. -->
+          <div class="frame">
+            <svg class="ratio" viewBox="0 0 220 100" aria-hidden="true"></svg><!-- 2.20:1 -->
+            <iframe src="https://player.vimeo.com/video/1211405020?title=0&byline=0&portrait=0" allow="fullscreen; picture-in-picture" title="Lockdown"></iframe>
+          </div>
+
+          <dl class="specs">
+            <dt>Runtime</dt><dd>6 min 34 s</dd>
+            <dt>Ratio</dt><dd>2.20 : 1</dd>
+            <dt>Origin</dt><dd>Spain · English</dd>
+            <dt>Role</dt><dd>Written, directed &amp; produced by McNovak</dd>
+          </dl>
+
+          <ul class="awards">
+            <li><span>CINE ANIMAL FEST — Bogotá</span><span class="place">Official Selection · 2023</span></li>
+          </ul>
+        </article>
+
+        <!-- CLAUSTROPHILIA -->
+        <article class="film">
+          <!-- NOTE / RECONCILE: your FilmFreeway page dates completion April 2020, but you present the film as 2021 (its festival year) and IMDb says 2021. I've used 2021 for the arc. Make the year consistent across FilmFreeway, IMDb and here. -->
+          <h3>Claustrophilia <span class="year">/ 2021</span></h3>
+          <p class="logline">A woman becomes imprisoned in her own apartment, and learns to enjoy the power she wields over everyone else trapped inside with her.</p>
+
+          <div class="frame">
+            <svg class="ratio" viewBox="0 0 16 9" aria-hidden="true"></svg><!-- 16:9 -->
+            <iframe src="https://player.vimeo.com/video/573856145?title=0&byline=0&portrait=0" allow="fullscreen; picture-in-picture" title="Claustrophilia"></iframe>
+          </div>
+
+          <dl class="specs">
+            <dt>Runtime</dt><dd>9 min 49 s</dd>
+            <dt>Ratio</dt><dd>16 : 9</dd>
+            <dt>Origin</dt><dd>Spain · English</dd>
+            <dt>Record</dt><dd>7 festivals · 6 awards</dd>
+          </dl>
+
+          <ul class="awards">
+            <li><span>New Wave Short Film Festival — Munich</span><span class="prize">Best Horror</span></li>
+            <li><span>Roma Short Film Festival — Rome</span><span class="prize">Best Horror</span></li>
+            <li><span>New York Tri-State International FF</span><span class="prize">Winner</span></li>
+            <li><span>One-Reeler Short Film Competition — LA</span><span class="prize">Winner</span></li>
+            <li><span>Barcelona International Film Festival</span><span class="prize">Winner</span></li>
+            <li><span>Hong Kong Indie Film Festival</span><span class="prize">Winner</span></li>
+            <li><span>Venice Fullshot Film Festival</span><span class="prize">Hon. Mention</span></li>
+          </ul>
+        </article>
+      </section>
+
+      <!-- ============ THE MISTRESS — apex ============ -->
+      <section class="apex" aria-label="The Mistress">
+        <p class="status">Feature · in development</p>
+        <h3>The Mistress</h3>
+        <!-- FILL: your final logline. Draft below drawn from your FilmFreeway framing — replace with the wording you want public. -->
+        <p class="logline">A wealthy socialite and her assistant are shut inside the assistant's apartment while the world outside comes apart — a feature-length confinement thriller set in Wrocław.</p>
+        <p>The chamber form the shorts were built to test, at feature length. The title is meant to stay ambiguous: who keeps whom.</p>
+        <p class="fill fill-block">FILL / DECIDE — Producer line. You need a producer for the PISF debut window regardless; a discreet "McNovak is seeking a producing partner for The Mistress — [email]" turns this page from a card into a call. Keep or cut.</p>
+      </section>
+
+      <!-- ============ SUBORDINATE: Bilateral Symmetry ============ -->
+      <!-- YOUR CALL: you decided to keep this out of pitch materials. It still lives on your IMDb, so total silence is slightly odd. I've left it as one quiet line. Delete this <p> entirely to cut it, or promote it into the films section to restore it. -->
+      <p class="also">Also: <em>Bilateral Symmetry</em> (2022), an experimental short. <span class="fill">FILL — link to FilmFreeway/IMDb, or delete this line.</span></p>
+
+      <!-- ============ FOOTER / PLUMBING ============ -->
+      <footer>
+        <span>© <span id="yr"></span> McNovak</span>
+        <span>Wrocław</span>
+        <span class="spacer"></span>
+        <!-- FILL: confirm the contact address. Currently your public FilmFreeway one. A dedicated hello@mcnovak.net reads more like a company. -->
+        <a href="mailto:williammcneice@icloud.com">Email</a>
+        <a href="https://filmfreeway.com/williammcneice">FilmFreeway</a>
+        <!-- FILL: paste your IMDb name URL. -->
+        <a href="#">IMDb</a>
+      </footer>
+
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('yr').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
