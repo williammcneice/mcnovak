@@ -10,9 +10,9 @@
 // <images-dir> holds one file per /_blob/<id> reference in the HTML, named
 // <id>.jpg. Keep both inputs out of the repo (private/ is gitignored).
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { webcrypto as crypto } from 'node:crypto';
+import { webcrypto as crypto, createHash } from 'node:crypto';
 
 const ITERATIONS = 600000;
 const OUT = 'lookbook';
@@ -24,11 +24,18 @@ if (!src || !imgDir || !password) {
 }
 
 const b64 = (buf) => Buffer.from(buf).toString('base64');
-const salt = crypto.getRandomValues(new Uint8Array(16));
+// Reuse the published salt so the key never changes between builds: a
+// browser holding a cached page from an earlier build can still decrypt
+// freshly published images, and the reverse.
+const prev = existsSync(join(OUT, 'index.html')) ? readFileSync(join(OUT, 'index.html'), 'utf8') : '';
+const prevSalt = prev.match(/var SALT="([^"]+)",ITER=(\d+)/);
+const salt = prevSalt && +prevSalt[2] === ITERATIONS
+  ? new Uint8Array(Buffer.from(prevSalt[1], 'base64'))
+  : crypto.getRandomValues(new Uint8Array(16));
 const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
 const key = await crypto.subtle.deriveKey(
   { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: ITERATIONS },
-  baseKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+  baseKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 
 async function seal(bytes) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -41,25 +48,38 @@ async function seal(bytes) {
 // Images: encrypt each referenced blob to lookbook/assets/<id>.bin
 let html = readFileSync(src, 'utf8');
 const ids = [...new Set([...html.matchAll(/\/_blob\/([0-9a-f]+)/g)].map((m) => m[1]))];
-rmSync(join(OUT, 'assets'), { recursive: true, force: true });
 mkdirSync(join(OUT, 'assets'), { recursive: true });
-const missing = [];
+for (const f of readdirSync(join(OUT, 'assets'))) {
+  if (!ids.includes(f.replace(/\.bin$/, ''))) rmSync(join(OUT, 'assets', f));
+}
+async function open(bytes) {
+  try { return Buffer.from(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(0, 12) }, key, bytes.slice(12))); }
+  catch { return null; }
+}
+const missing = [], version = {};
+let rewritten = 0;
 for (const id of ids) {
-  const file = join(imgDir, `${id}.jpg`);
+  const file = join(imgDir, `${id}.jpg`), out = join(OUT, 'assets', `${id}.bin`);
   if (!existsSync(file)) { missing.push(id); continue; }
-  writeFileSync(join(OUT, 'assets', `${id}.bin`), await seal(readFileSync(file)));
+  const plain = readFileSync(file);
+  let sealed = existsSync(out) ? new Uint8Array(readFileSync(out)) : null;
+  const same = sealed && (await open(sealed))?.equals(plain);
+  if (!same) { sealed = await seal(plain); writeFileSync(out, sealed); rewritten++; }
+  // The address changes whenever the file does, so no cache can serve a stale copy.
+  version[id] = createHash('sha256').update(sealed).digest('hex').slice(0, 10);
 }
 
 // Page: images get their encrypted path in data-enc; a loader decrypts them.
-html = html.replace(/src="\/_blob\/([0-9a-f]+)"/g, 'data-enc="assets/$1.bin"');
+html = html.replace(/src="\/_blob\/([0-9a-f]+)"/g, (_, id) => `data-enc="assets/${id}.bin?v=${version[id] || 0}"`);
 const loader = `<script>(async function(){
   var raw=sessionStorage.getItem('mistress-key');if(!raw)return;
   var k=await crypto.subtle.importKey('raw',Uint8Array.from(atob(raw),function(c){return c.charCodeAt(0)}),'AES-GCM',false,['decrypt']);
   var imgs=[].slice.call(document.querySelectorAll('img[data-enc]')),i=0;
-  async function next(){while(i<imgs.length){var img=imgs[i++];try{
-    var b=new Uint8Array(await (await fetch(img.dataset.enc)).arrayBuffer());
-    var p=await crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(0,12)},k,b.slice(12));
-    img.src=URL.createObjectURL(new Blob([p],{type:'image/jpeg'}));}catch(e){}}}
+  async function get(u,c){var b=new Uint8Array(await (await fetch(u,{cache:c})).arrayBuffer());
+    return crypto.subtle.decrypt({name:'AES-GCM',iv:b.slice(0,12)},k,b.slice(12));}
+  async function next(){while(i<imgs.length){var img=imgs[i++],p;
+    try{p=await get(img.dataset.enc,'default')}catch(e){try{p=await get(img.dataset.enc,'reload')}catch(e2){continue}}
+    img.src=URL.createObjectURL(new Blob([p],{type:'image/jpeg'}));}}
   for(var n=0;n<4;n++)next();
 })();</script>`;
 html = html.replace('</body>', loader + '</body>');
@@ -117,5 +137,5 @@ document.getElementById('f').addEventListener('submit',async function(e){
 `;
 writeFileSync(join(OUT, 'index.html'), gate);
 
-console.log(`lookbook/index.html written; ${ids.length - missing.length}/${ids.length} images encrypted.`);
+console.log(`lookbook/index.html written; ${ids.length - missing.length}/${ids.length} images present, ${rewritten} re-encrypted; salt ${prevSalt ? 'kept' : 'new'}.`);
 if (missing.length) console.log('Missing images:\n' + missing.map((m) => '  ' + m).join('\n'));
