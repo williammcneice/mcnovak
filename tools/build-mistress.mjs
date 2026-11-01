@@ -1,4 +1,4 @@
-// Builds the password-protected look book at mistress/.
+// Builds the password-protected look book at lookbook/.
 //
 // The repository is public, so nothing readable may be committed: the page
 // and every image are encrypted (AES-256-GCM, key from PBKDF2-SHA256) and
@@ -15,7 +15,7 @@ import { join } from 'node:path';
 import { webcrypto as crypto } from 'node:crypto';
 
 const ITERATIONS = 600000;
-const OUT = 'mistress';
+const OUT = 'lookbook';
 const [src, imgDir] = process.argv.slice(2);
 const password = process.env.MISTRESS_PASSWORD;
 if (!src || !imgDir || !password) {
@@ -38,7 +38,7 @@ async function seal(bytes) {
   return out;
 }
 
-// Images: encrypt each referenced blob to mistress/assets/<id>.bin
+// Images: encrypt each referenced blob to lookbook/assets/<id>.bin
 let html = readFileSync(src, 'utf8');
 const ids = [...new Set([...html.matchAll(/\/_blob\/([0-9a-f]+)/g)].map((m) => m[1]))];
 rmSync(join(OUT, 'assets'), { recursive: true, force: true });
@@ -117,5 +117,5 @@ document.getElementById('f').addEventListener('submit',async function(e){
 `;
 writeFileSync(join(OUT, 'index.html'), gate);
 
-console.log(`mistress/index.html written; ${ids.length - missing.length}/${ids.length} images encrypted.`);
+console.log(`lookbook/index.html written; ${ids.length - missing.length}/${ids.length} images encrypted.`);
 if (missing.length) console.log('Missing images:\n' + missing.map((m) => '  ' + m).join('\n'));
