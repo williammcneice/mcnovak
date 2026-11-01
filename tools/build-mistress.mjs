@@ -56,12 +56,23 @@ async function open(bytes) {
   try { return Buffer.from(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes.slice(0, 12) }, key, bytes.slice(12))); }
   catch { return null; }
 }
-const missing = [], version = {};
+// Pixel size of a JPEG, read from its start-of-frame marker.
+function jpegSize(buf) {
+  for (let i = 2; i < buf.length - 9;) {
+    if (buf[i] !== 0xff) { i++; continue; }
+    const m = buf[i + 1], len = buf.readUInt16BE(i + 2);
+    if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return [buf.readUInt16BE(i + 7), buf.readUInt16BE(i + 5)];
+    i += 2 + len;
+  }
+  return null;
+}
+const missing = [], version = {}, size = {};
 let rewritten = 0;
 for (const id of ids) {
   const file = join(imgDir, `${id}.jpg`), out = join(OUT, 'assets', `${id}.bin`);
   if (!existsSync(file)) { missing.push(id); continue; }
   const plain = readFileSync(file);
+  size[id] = jpegSize(plain);
   let sealed = existsSync(out) ? new Uint8Array(readFileSync(out)) : null;
   const same = sealed && (await open(sealed))?.equals(plain);
   if (!same) { sealed = await seal(plain); writeFileSync(out, sealed); rewritten++; }
@@ -70,7 +81,8 @@ for (const id of ids) {
 }
 
 // Page: images get their encrypted path in data-enc; a loader decrypts them.
-html = html.replace(/src="\/_blob\/([0-9a-f]+)"/g, (_, id) => `data-enc="assets/${id}.bin?v=${version[id] || 0}"`);
+html = html.replace(/src="\/_blob\/([0-9a-f]+)"/g, (_, id) => (size[id] ? `width="${size[id][0]}" height="${size[id][1]}" ` : '') + `data-enc="assets/${id}.bin?v=${version[id] || 0}"`);
+// Width and height let the browser reserve each image's space before it is decrypted.
 const loader = `<script>(async function(){
   var raw=sessionStorage.getItem('mistress-key');if(!raw)return;
   var k=await crypto.subtle.importKey('raw',Uint8Array.from(atob(raw),function(c){return c.charCodeAt(0)}),'AES-GCM',false,['decrypt']);
