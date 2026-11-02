@@ -134,7 +134,7 @@ async function open(k,raw){
   document.open();document.write(new TextDecoder().decode(p));document.close();
 }
 async function fromRaw(raw){return crypto.subtle.importKey('raw',bytes(raw),'AES-GCM',false,['decrypt'])}
-(async function(){var raw=sessionStorage.getItem('mistress-key');if(raw){try{await open(await fromRaw(raw),raw)}catch(e){sessionStorage.removeItem('mistress-key')}}})();
+addEventListener('DOMContentLoaded',async function(){var raw=sessionStorage.getItem('mistress-key');if(raw){try{await open(await fromRaw(raw),raw)}catch(e){sessionStorage.removeItem('mistress-key')}}});
 document.getElementById('f').addEventListener('submit',async function(e){
   e.preventDefault();var m=document.getElementById('m'),b=document.getElementById('b');
   b.disabled=true;m.className='msg';m.textContent='Opening…';

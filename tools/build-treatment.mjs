@@ -110,7 +110,7 @@ const keyScript = `var SALT="${b64(salt)}",ITER=${ITERATIONS};
 function bytes(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})}
 async function fromRaw(raw){return crypto.subtle.importKey('raw',bytes(raw),'AES-GCM',false,['decrypt'])}
 async function dec(k,s){var d=bytes(s);return crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(0,12)},k,d.slice(12))}
-(async function(){var raw=sessionStorage.getItem('mistress-key');if(raw){try{await unlock(await fromRaw(raw),raw)}catch(e){sessionStorage.removeItem('mistress-key')}}})();
+addEventListener('DOMContentLoaded',async function(){var raw=sessionStorage.getItem('mistress-key');if(raw){try{await unlock(await fromRaw(raw),raw)}catch(e){sessionStorage.removeItem('mistress-key')}}});
 document.getElementById('f').addEventListener('submit',async function(e){
   e.preventDefault();var m=document.getElementById('m'),b=document.getElementById('b');
   b.disabled=true;m.className='msg';m.textContent='Opening…';

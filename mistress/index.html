@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>The Mistress — Treatment and look book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Source+Serif+4:wght@300..600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#16181a;color:#f0ece6;font-family:Inter,-apple-system,Helvetica,Arial,sans-serif;color-scheme:dark}
+main{min-height:100%;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,8vmin,96px);gap:clamp(18px,3vmin,32px);max-width:44rem}
+.kicker{margin:0;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:#d94434;font-weight:500}
+h1{margin:0;font-family:"Source Serif 4",Georgia,serif;font-weight:400;font-size:clamp(48px,10vmin,120px);line-height:1}
+form{display:flex;gap:10px;flex-wrap:wrap}
+input{flex:1 1 14rem;font:inherit;font-size:17px;padding:.75em .9em;background:#0e0f10;color:inherit;border:1px solid #3a3d40;border-radius:0}
+input:focus{outline:none;border-color:#949ca4}
+button,.btn{font:inherit;font-size:15px;letter-spacing:.06em;padding:.75em 1.4em;background:#f0ece6;color:#16181a;border:0;border-radius:0;cursor:pointer;text-decoration:none;display:inline-block}
+button:disabled{opacity:.5}
+.btn:hover,.btn:focus-visible{background:#d94434;color:#f0ece6;outline:none}
+.choices{display:flex;gap:10px;flex-wrap:wrap}
+.choices .btn{flex:1 1 12rem;text-align:center}
+[hidden]{display:none!important}
+.msg{margin:0;min-height:1.4em;font-size:14px;color:#949ca4}
+.msg.err{color:#d94434}
+a{color:#949ca4}
+</style></head><body><main>
+<p class="kicker">Private · password on request</p>
+<h1>The Mistress</h1>
+<div id="lock">
+<form id="f"><input id="p" type="password" autocomplete="current-password" placeholder="Password" aria-label="Password" required autofocus><button id="b">Open</button></form>
+</div>
+<div class="choices" id="open" hidden>
+<a class="btn" href="../treatment/">Treatment</a>
+<a class="btn" href="../lookbook/">Look book</a>
+</div>
+<p class="msg" id="m">For producers and collaborators. Request the password at <a href="mailto:will@mcnovak.net?subject=The%20Mistress%20%E2%80%94%20treatment%20and%20look%20book">will@mcnovak.net</a>.</p>
+<p class="msg"><a href="../">← McNovak</a></p>
+</main>
+<script>
+var CHECK="gH2X2JR/55SdU/5+qMFueURZbuBBZbStvGbDIoEyH6jEtFJr";
+async function unlock(k,raw){
+  await dec(k,CHECK);
+  sessionStorage.setItem('mistress-key',raw);
+  document.getElementById('lock').hidden=true;
+  document.getElementById('open').hidden=false;
+  var m=document.getElementById('m');m.className='msg';m.textContent='';
+  document.querySelector('#open .btn').focus();
+}
+var SALT="6Lt2tXfiXw7ZOpVYmrKnVQ==",ITER=600000;
+function bytes(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})}
+async function fromRaw(raw){return crypto.subtle.importKey('raw',bytes(raw),'AES-GCM',false,['decrypt'])}
+async function dec(k,s){var d=bytes(s);return crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(0,12)},k,d.slice(12))}
+addEventListener('DOMContentLoaded',async function(){var raw=sessionStorage.getItem('mistress-key');if(raw){try{await unlock(await fromRaw(raw),raw)}catch(e){sessionStorage.removeItem('mistress-key')}}});
+document.getElementById('f').addEventListener('submit',async function(e){
+  e.preventDefault();var m=document.getElementById('m'),b=document.getElementById('b');
+  b.disabled=true;m.className='msg';m.textContent='Opening…';
+  try{
+    var base=await crypto.subtle.importKey('raw',new TextEncoder().encode(document.getElementById('p').value),'PBKDF2',false,['deriveKey']);
+    var k=await crypto.subtle.deriveKey({name:'PBKDF2',hash:'SHA-256',salt:bytes(SALT),iterations:ITER},base,{name:'AES-GCM',length:256},true,['decrypt']);
+    var raw=btoa(String.fromCharCode.apply(null,new Uint8Array(await crypto.subtle.exportKey('raw',k))));
+    await unlock(k,raw);
+  }catch(err){m.className='msg err';m.textContent='That password is not right.';b.disabled=false;}
+});
+</script></body></html>
